@@ -44,3 +44,23 @@ func AddClientHeader(ctx context.Context, key, value string) context.Context {
 	headers = append(headers, key)
 	return thrift.SetWriteHeaderList(ctx, headers)
 }
+
+// header gets the value of a thrift header by key
+//
+// If the value is not present we fall back to a lower-case check
+func header(ctx context.Context, key string) (v string, ok bool) {
+	v, ok = thrift.GetHeader(ctx, key)
+	if !ok {
+		// We fall back to checking the key that an envoy proxy will send, which is a lower-case
+		// version of the thrift key.
+		//
+		//
+		// For details on this workaround, see:
+		// 	* https://github.com/reddit/baseplate.py/commit/daf1c5e32dcc019470d75f3940006bb2f7b9855e
+		// 	* https://github.com/envoyproxy/envoy/issues/20595
+		// 	* https://github.com/reddit/baseplate.go/pull/500
+		v, ok = thrift.GetHeader(ctx, strings.ToLower(key))
+	}
+
+	return
+}
