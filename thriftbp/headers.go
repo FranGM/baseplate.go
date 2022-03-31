@@ -2,6 +2,7 @@ package thriftbp
 
 import (
 	"context"
+	"strings"
 
 	"github.com/apache/thrift/lib/go/thrift"
 
